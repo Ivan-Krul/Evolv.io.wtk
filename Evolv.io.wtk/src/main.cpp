@@ -2,17 +2,16 @@
 
 #include "raylib.h"
 
+#include "Simulation.h"
+
 int main() {
     InitWindow(640, 480, "Evolv.io.wtk");
     SetTargetFPS(60);
 
+    Simulation sim;
+
     while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        DrawText("this text should show for me!", 100, 100, 24, RAYWHITE);
-
-        EndDrawing();
+        sim.loop();
     }
 
     CloseWindow();
