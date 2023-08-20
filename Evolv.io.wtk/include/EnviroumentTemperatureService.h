@@ -4,6 +4,8 @@
 
 class EnviroumentTemperatureService {
 public:
+    EnviroumentTemperatureService();
+
     void setSeasonFrequency(float seasonFrequency) noexcept;
     void setTempratureRange(int16_t tempMinInLowest, uint16_t heightTempDifference, int16_t tempMaxInLowest) noexcept;
     

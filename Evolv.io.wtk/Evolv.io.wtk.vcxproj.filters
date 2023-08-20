@@ -30,6 +30,9 @@
     <ClCompile Include="src\EnviroumentTemperatureService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EnviroumentTerrainService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Simulation.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EnviroumentTerrainService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

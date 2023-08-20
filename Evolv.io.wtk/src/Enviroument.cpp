@@ -5,21 +5,6 @@ Enviroument::Enviroument(size_t sizeX, size_t sizeY) {
     mWidth = sizeX;
     mHeight = sizeY;
     mImage = GenImageColor(mWidth, mHeight, WHITE);
-
-    auto prop = component_property_kit_lib::Properties();
-    auto pgc = PlainGenComponent(prop, 0, typeid(PlainGenComponent).hash_code());
-    pgc.init();
-
-    auto map = pgc.generatePerlinChunk<component_property_kit_lib::SmootherSmoothLinear>(0.5, 0.5, 6, sizeX, sizeY);
-
-    mTileMap.resize(map.size());
-
-    for (size_t i = 0; i < map.size(); i++) {
-        mTileMap[i].height = map[i] * 256.0f;
-        mTileMap[i].plantFillness = mTileMap[i].height;
-    }
-
-    calculateSteepnessLevel();
 }
 
 void Enviroument::step(float wideness) {
@@ -42,14 +27,13 @@ void Enviroument::generateImage() {
 
     float steep = 0;
 
-    for (size_t i = 0; i < mTileMap.size(); i++) {
-        if (mTileMap[i].height > mETemperatureService.getIceCapLevel())
-            imageData[i] = { (uint8_t)(mTileMap[i].height >> 1),(uint8_t)(mTileMap[i].height >> 1),(mTileMap[i].height), 255 };
-        else if (mTileMap[i].height < mEWaterService.calculateSeaLevel())
-            imageData[i] = { 0,0,(uint8_t)(mTileMap[i].height << shiftValue), 255 };
+    for (size_t i = 0; i < mETerrainService.getSize(); i++) {
+        if (mETerrainService.getHeight(i) > mETemperatureService.getIceCapLevel())
+            imageData[i] = { (uint8_t)(mETerrainService.getHeight(i) >> 1),(uint8_t)(mETerrainService.getHeight(i) >> 1),mETerrainService.getHeight(i), 255 };
+        else if (mETerrainService.getHeight(i) < mEWaterService.calculateSeaLevel())
+            imageData[i] = { 0,0,(uint8_t)(mETerrainService.getHeight(i) << shiftValue), 255 };
         else {
-            steep = fit<float>(mTileMap[i].steepnessLevel, 0.f, 255.f);
-            imageData[i] = { (uint8_t)(steep * 256.f),mTileMap[i].height,0, 255 };
+            imageData[i] = { (uint8_t)(mETerrainService.getSteepness(i) * 256.f),mETerrainService.getHeight(i),0, 255 };
         }
 
         //else
@@ -66,7 +50,7 @@ Image& Enviroument::getImage() {
 }
 
 bool Enviroument::chechIsUnfinishedCheckList() const noexcept {
-    return !mEWaterService.isReady() && ~mCheckList.count();
+    return !mEWaterService.isReady() && ~mCheckList.count() && !mETemperatureService.isReady() && mETerrainService.isReady();
 }
 
 void Enviroument::handleUnfinishedCheckList() const noexcept {
@@ -76,30 +60,4 @@ void Enviroument::handleUnfinishedCheckList() const noexcept {
     }
 
     printf("\n");
-}
-
-void Enviroument::calculateSteepnessLevel() {
-    uint16_t avrg = 0;
-    auto isInMap = [=](size_t index, int x, int y) {
-        size_t ix = index % mWidth;
-        size_t iy = index / mWidth;
-        return (0 <= (ix + x)) && ((ix + x) < mWidth) && (0 <= (iy + y)) && ((iy + y) < mHeight);
-    };
-
-    uint8_t valids = 1;
-
-    for (size_t i = 0; i < mTileMap.size(); i++) {
-        avrg = mTileMap[i].height;
-        valids = 1;
-        for (int x = 0; x < 2; x++) {
-            for (int y = 0; y < 2; y++) {
-                if (isInMap(i, x, y)) {
-                    valids++;
-                    avrg += abs(mTileMap[i].height - mTileMap[i + x + y * mWidth].height) * 48;
-                }
-            }
-        }
-
-        mTileMap[i].steepnessLevel = slice<uint8_t>(avrg / valids, 0, 255);
-    }
 }

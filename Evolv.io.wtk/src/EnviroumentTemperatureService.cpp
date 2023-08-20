@@ -2,6 +2,15 @@
 #include "Utils.h"
 #include "raylib.h"
 
+EnviroumentTemperatureService::EnviroumentTemperatureService() {
+    mCheckList = 0;
+    mSeasonFrequency = 0;
+    mHeightDifference = 0;
+    mTempMaxInLowest = 0;
+    mTempMinInLowest = 0;
+    mIceCapLevel = 0;
+}
+
 void EnviroumentTemperatureService::setSeasonFrequency(float seasonFrequency) noexcept {
     mSeasonFrequency = seasonFrequency;
     mCheckList[0] = true;

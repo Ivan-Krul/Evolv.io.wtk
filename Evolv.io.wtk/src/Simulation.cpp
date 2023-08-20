@@ -5,6 +5,9 @@
 Simulation::Simulation()
     : mEnviroument(640, 480) {
 
+    int iters =8;
+    mEnviroument.getTerrainService().generate(640, 480, iters);
+    mEnviroument.getTerrainService().calculateSteepnessLevel(1 << (iters - 1));
     mEnviroument.getWaterService().setSeaLevel(64);
     mEnviroument.getWaterService().setTides(5, 30);
     mEnviroument.getTemperatureService().setTempratureRange(15,20,30);

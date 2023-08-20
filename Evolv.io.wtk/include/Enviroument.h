@@ -8,18 +8,15 @@
 
 #include "EnviroumentWaterService.h"
 #include "EnviroumentTemperatureService.h"
+#include "EnviroumentTerrainService.h"
 
 class Enviroument {
 public:
-    struct Tile { // because of budget cuts
-        uint8_t height; // in procents
-        uint8_t plantFillness; // in procents
-        uint8_t steepnessLevel; // in procents
-    };
-
     Enviroument(size_t sizeX, size_t sizeY);
+
     inline _NODISCARD EnviroumentWaterService& getWaterService() noexcept { return mEWaterService; }
     inline _NODISCARD EnviroumentTemperatureService& getTemperatureService() noexcept { return mETemperatureService; }
+    inline _NODISCARD EnviroumentTerrainService& getTerrainService() noexcept { return mETerrainService; }
     void setTempratureForPlantsRange(int16_t tempPlantMin, int16_t tempPlantMax) noexcept;
     void setGrowRatio(float ratio) noexcept;
     void setBoosters(uint16_t sunBoostr, uint16_t rainBooster) noexcept;
@@ -37,17 +34,15 @@ private:
     bool chechIsUnfinishedCheckList() const noexcept;
     void handleUnfinishedCheckList() const noexcept;
 
-    void calculateSteepnessLevel();
-
     size_t mWidth;
     size_t mHeight;
-    std::vector<Tile> mTileMap;
     Image mImage;
 
-    std::bitset<6> mCheckList;
+    std::bitset<4> mCheckList;
 
     float mOscillator = 0;
 
+    EnviroumentTerrainService mETerrainService;
     EnviroumentWaterService mEWaterService;
     EnviroumentTemperatureService mETemperatureService;
 

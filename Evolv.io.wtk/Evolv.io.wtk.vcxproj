@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EnviroumentTerrainService.cpp" />
     <ClCompile Include="src\EnviroumentTemperatureService.cpp" />
     <ClCompile Include="src\EnviroumentWaterService.cpp" />
     <ClCompile Include="src\Enviroument.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\EnviroumentTerrainService.h" />
     <ClInclude Include="include\EnviroumentTemperatureService.h" />
     <ClInclude Include="include\EnviroumentWaterService.h" />
     <ClInclude Include="include\Enviroument.h" />
