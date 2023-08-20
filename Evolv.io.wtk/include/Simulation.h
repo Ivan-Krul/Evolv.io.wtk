@@ -1,5 +1,8 @@
 #pragma once
 #include "ComponentPropertyKit.h"
+#include "GraphicSystem.h"
+
+#include "Enviroument.h"
 
 class Simulation {
 public:
@@ -7,6 +10,8 @@ public:
 
     void loop();
 private:
-    component_property_kit_lib::Properties mProperties;
+    Enviroument mEnviroument;
+    graphic_sys_lib::Renderer mRenderer;
+    float mSpeed;
 };
 
