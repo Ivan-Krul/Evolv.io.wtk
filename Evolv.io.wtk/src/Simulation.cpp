@@ -7,8 +7,8 @@ Simulation::Simulation()
 
     mEnviroument.getWaterService().setSeaLevel(64);
     mEnviroument.getWaterService().setTides(5, 30);
-    mEnviroument.setTempratureRange(15,20,30);
-    mEnviroument.setSeasonFrequency(0.1);
+    mEnviroument.getTemperatureService().setTempratureRange(15,20,30);
+    mEnviroument.getTemperatureService().setSeasonFrequency(0.1);
 
     mRenderer.push<graphic_sys_lib::Sprite>(LoadTextureFromImage(mEnviroument.getImage()));
 

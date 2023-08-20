@@ -1,4 +1,5 @@
 #include "Enviroument.h"
+#include "Utils.h"
 
 Enviroument::Enviroument(size_t sizeX, size_t sizeY) {
     mWidth = sizeX;
@@ -21,23 +22,9 @@ Enviroument::Enviroument(size_t sizeX, size_t sizeY) {
     calculateSteepnessLevel();
 }
 
-void Enviroument::setSeasonFrequency(float seasonFrequency) noexcept {
-    mSeasonFrequency = seasonFrequency;
-    mCheckList[0] = true;
-}
-
-void Enviroument::setTempratureRange(int16_t tempMinInLowest, uint16_t heightTempDifference, int16_t tempMaxInLowest) noexcept {
-    mTempMinInLowest = tempMinInLowest;
-    mTempMaxInLowest = tempMaxInLowest;
-    mHeightDifference = heightTempDifference;
-    calculateIceCapLevel();
-    mCheckList[1] = true;
-}
-
 void Enviroument::step(float wideness) {
-    calculateIceCapLevel();
     mOscillator += wideness;
-    mSeasonRatio = fit<float>(sin(mOscillator * PI * mSeasonFrequency), -1, 1);
+    mETemperatureService.takeStep(mOscillator);
     mEWaterService.takeStep(mOscillator);
 }
 
@@ -56,7 +43,7 @@ void Enviroument::generateImage() {
     float steep = 0;
 
     for (size_t i = 0; i < mTileMap.size(); i++) {
-        if (mTileMap[i].height > mIceCapLevel)
+        if (mTileMap[i].height > mETemperatureService.getIceCapLevel())
             imageData[i] = { (uint8_t)(mTileMap[i].height >> 1),(uint8_t)(mTileMap[i].height >> 1),(mTileMap[i].height), 255 };
         else if (mTileMap[i].height < mEWaterService.calculateSeaLevel())
             imageData[i] = { 0,0,(uint8_t)(mTileMap[i].height << shiftValue), 255 };
@@ -89,21 +76,6 @@ void Enviroument::handleUnfinishedCheckList() const noexcept {
     }
 
     printf("\n");
-}
-
-void Enviroument::calculateIceCapLevel() {
-    float currentLowest = scale<float>(mSeasonRatio, mTempMinInLowest, mTempMaxInLowest);
-    float height = findZeroFromScale<float>(currentLowest, currentLowest - mHeightDifference) * 256.f;
-    //printf("%f\n", height);
-    mIceCapLevel = slice<int16_t>(height, 0, 256);
-    
-    //printf("Lowest point: %d°C\nHighest point: %d°C\n", getCurrentTemprature(0), getCurrentTemprature(255));
-}
-
-int16_t Enviroument::getCurrentTemprature(uint8_t height) {
-    float heightDiff = (float)height / 256.f;
-    uint16_t currentLowest = scale<float>(mSeasonRatio, mTempMinInLowest, mTempMaxInLowest);
-    return scale<float>(heightDiff, currentLowest, currentLowest - mHeightDifference);
 }
 
 void Enviroument::calculateSteepnessLevel() {

@@ -151,15 +151,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EnviroumentTemperatureService.cpp" />
     <ClCompile Include="src\EnviroumentWaterService.cpp" />
     <ClCompile Include="src\Enviroument.cpp" />
     <ClCompile Include="src\Simulation.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\EnviroumentTemperatureService.h" />
     <ClInclude Include="include\EnviroumentWaterService.h" />
     <ClInclude Include="include\Enviroument.h" />
     <ClInclude Include="include\Simulation.h" />
+    <ClInclude Include="include\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
