@@ -20,7 +20,6 @@ public:
     void setTempratureForPlantsRange(int16_t tempPlantMin, int16_t tempPlantMax) noexcept;
     void setGrowRatio(float ratio) noexcept;
     void setBoosters(uint16_t sunBoostr, uint16_t rainBooster) noexcept;
-    void setCloudHeight(uint16_t cloudHeight) noexcept;
     void step(float wideness);
 
     void generateImage();
@@ -51,5 +50,4 @@ private:
     int16_t mMaxTempForPlantsLiving;
     uint16_t mSunBooster; // in procent
     uint16_t mRainBooster; // in procent
-    uint16_t mCloudHeight; // in procent
 };

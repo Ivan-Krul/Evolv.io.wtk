@@ -22,12 +22,16 @@ bool EnviroumentWaterService::isReady() const noexcept {
     return !(~mCheckList.count());
 }
 
-uint16_t EnviroumentWaterService::calculateSeaLevel() noexcept {
+uint16_t EnviroumentWaterService::calculateSeaLevel() const noexcept {
     return mSeaLevel + mTideRatio * mTideAmplitude;
 }
 
-uint16_t EnviroumentWaterService::getHighestLevel() noexcept {
+uint16_t EnviroumentWaterService::getHighestLevel() const noexcept {
     return mTideAmplitude + mSeaLevel;
+}
+
+uint16_t EnviroumentWaterService::getLowestLevel() const noexcept {
+    return mSeaLevel - mTideAmplitude;
 }
 
 void EnviroumentWaterService::takeStep(float oscillator) {

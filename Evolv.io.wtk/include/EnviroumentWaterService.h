@@ -13,8 +13,9 @@ public:
 
     bool isReady() const noexcept;
 
-    _NODISCARD uint16_t calculateSeaLevel() noexcept;
-    _NODISCARD uint16_t getHighestLevel() noexcept;
+    _NODISCARD uint16_t calculateSeaLevel() const noexcept;
+    _NODISCARD uint16_t getHighestLevel() const noexcept;
+    _NODISCARD uint16_t getLowestLevel() const noexcept;
     void takeStep(float oscillator);
 
 private:
