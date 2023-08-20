@@ -5,8 +5,8 @@
 Simulation::Simulation()
     : mEnviroument(640, 480) {
 
-    mEnviroument.setSeaLevel(64);
-    mEnviroument.setTides(5, 30);
+    mEnviroument.getWaterService().setSeaLevel(64);
+    mEnviroument.getWaterService().setTides(5, 30);
     mEnviroument.setTempratureRange(15,20,30);
     mEnviroument.setSeasonFrequency(0.1);
 

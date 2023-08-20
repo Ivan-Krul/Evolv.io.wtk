@@ -24,12 +24,18 @@
     <ClCompile Include="src\Enviroument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EnviroumentWaterService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Simulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Enviroument.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EnviroumentWaterService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

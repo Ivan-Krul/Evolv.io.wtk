@@ -6,6 +6,8 @@
 
 #include "ComponentPropertyKit.h"
 
+#include "EnviroumentWaterService.h"
+
 class Enviroument {
 public:
     struct Tile { // because of budget cuts
@@ -15,8 +17,7 @@ public:
     };
 
     Enviroument(size_t sizeX, size_t sizeY);
-    void setSeaLevel(uint16_t seaLevel) noexcept;
-    void setTides(uint16_t tideAmplitude, uint16_t tideFrequency) noexcept;
+    inline _NODISCARD EnviroumentWaterService& getWaterService() noexcept { return mEWaterService; }
     void setSeasonFrequency(float seasonFrequency) noexcept;
     void setTempratureRange(int16_t tempMinInLowest, uint16_t heightTempDifference, int16_t tempMaxInLowest) noexcept;
     void setTempratureForPlantsRange(int16_t tempPlantMin, int16_t tempPlantMax) noexcept;
@@ -33,7 +34,8 @@ public:
         UnloadImage(mImage);
     }
 private:
-    void handleUnfinishedCheckList() noexcept;
+    bool chechIsUnfinishedCheckList() const noexcept;
+    void handleUnfinishedCheckList() const noexcept;
 
     template<typename T>
     T scale(float x, T min, T max);
@@ -55,12 +57,9 @@ private:
     std::vector<Tile> mTileMap;
     Image mImage;
 
-    std::bitset<8> mCheckList;
+    std::bitset<6> mCheckList;
 
-    uint16_t mSeaLevel; // in procents
-    uint16_t mTideFrequency;
-    uint16_t mTideAmplitude;
-    float mTideRatio = 0.5;
+    EnviroumentWaterService mEWaterService;
 
     float mSeasonFrequency;
     float mOscillator = 0;

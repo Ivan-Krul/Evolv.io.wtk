@@ -21,20 +21,9 @@ Enviroument::Enviroument(size_t sizeX, size_t sizeY) {
     calculateSteepnessLevel();
 }
 
-void Enviroument::setSeaLevel(uint16_t seaLevel) noexcept {
-    mSeaLevel = seaLevel;
-    mCheckList[0] = true;
-}
-
-void Enviroument::setTides(uint16_t tideAmplitude, uint16_t tideFrequency) noexcept {
-    mTideAmplitude = tideAmplitude;
-    mTideFrequency = tideFrequency;
-    mCheckList[1] = true;
-}
-
 void Enviroument::setSeasonFrequency(float seasonFrequency) noexcept {
     mSeasonFrequency = seasonFrequency;
-    mCheckList[2] = true;
+    mCheckList[0] = true;
 }
 
 void Enviroument::setTempratureRange(int16_t tempMinInLowest, uint16_t heightTempDifference, int16_t tempMaxInLowest) noexcept {
@@ -42,14 +31,14 @@ void Enviroument::setTempratureRange(int16_t tempMinInLowest, uint16_t heightTem
     mTempMaxInLowest = tempMaxInLowest;
     mHeightDifference = heightTempDifference;
     calculateIceCapLevel();
-    mCheckList[3] = true;
+    mCheckList[1] = true;
 }
 
 void Enviroument::step(float wideness) {
     calculateIceCapLevel();
     mOscillator += wideness;
     mSeasonRatio = fit<float>(sin(mOscillator * PI * mSeasonFrequency), -1, 1);
-    mTideRatio = sin(mOscillator * PI * mTideFrequency);
+    mEWaterService.takeStep(mOscillator);
 }
 
 void Enviroument::generateImage() {
@@ -61,7 +50,7 @@ void Enviroument::generateImage() {
     //}
 
     int shiftValue = 1;
-    if (mSeaLevel + mTideAmplitude > 128)
+    if (mEWaterService.getHighestLevel() > 128)
         shiftValue--;
 
     float steep = 0;
@@ -69,7 +58,7 @@ void Enviroument::generateImage() {
     for (size_t i = 0; i < mTileMap.size(); i++) {
         if (mTileMap[i].height > mIceCapLevel)
             imageData[i] = { (uint8_t)(mTileMap[i].height >> 1),(uint8_t)(mTileMap[i].height >> 1),(mTileMap[i].height), 255 };
-        else if (mTileMap[i].height < (mSeaLevel + mTideRatio * (float)mTideAmplitude))
+        else if (mTileMap[i].height < mEWaterService.calculateSeaLevel())
             imageData[i] = { 0,0,(uint8_t)(mTileMap[i].height << shiftValue), 255 };
         else {
             steep = fit<float>(mTileMap[i].steepnessLevel, 0.f, 255.f);
@@ -86,12 +75,14 @@ float Enviroument::getOscillator() {
 }
 
 Image& Enviroument::getImage() {
-    
-
     return mImage;
 }
 
-void Enviroument::handleUnfinishedCheckList() noexcept {
+bool Enviroument::chechIsUnfinishedCheckList() const noexcept {
+    return !mEWaterService.isReady() && ~mCheckList.count();
+}
+
+void Enviroument::handleUnfinishedCheckList() const noexcept {
     printf("Operations was denied because not all in checklist was done: ");
     for (size_t i = 0; i < mCheckList.size(); i++) {
         printf("%d", (bool)mCheckList[i]);
