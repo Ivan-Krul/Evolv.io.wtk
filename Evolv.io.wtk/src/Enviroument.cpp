@@ -9,8 +9,10 @@ Enviroument::Enviroument(size_t sizeX, size_t sizeY) {
 
 void Enviroument::step(float wideness) {
     mOscillator += wideness;
-    mETemperatureService.takeStep(mOscillator);
-    mEWaterService.takeStep(mOscillator);
+    //mETemperatureService.takeStep(mOscillator);
+    //mEWaterService.takeStep(mOscillator);
+
+    mECloudService.takeStep(wideness);
 }
 
 void Enviroument::generateImage() {
@@ -27,17 +29,13 @@ void Enviroument::generateImage() {
 
     float steep = 0;
 
-    for (size_t i = 0; i < mETerrainService.getSize(); i++) {
-        if (mETerrainService.getHeight(i) > mETemperatureService.getIceCapLevel())
-            imageData[i] = { (uint8_t)(mETerrainService.getHeight(i) >> 1),(uint8_t)(mETerrainService.getHeight(i) >> 1),mETerrainService.getHeight(i), 255 };
-        else if (mETerrainService.getHeight(i) < mEWaterService.calculateSeaLevel())
-            imageData[i] = { 0,0,(uint8_t)(mETerrainService.getHeight(i) << shiftValue), 255 };
-        else {
-            imageData[i] = { (uint8_t)(mETerrainService.getSteepness(i) * 256.f),mETerrainService.getHeight(i),0, 255 };
-        }
+    uint8_t val;
 
-        //else
-        //    imageData[i] = { mTileMap[i].height, mTileMap[i].height, mTileMap[i].height, 255 };
+    for (size_t y = 0; y < mHeight; y++) {
+        for (size_t x = 0; x < mWidth; x++) {
+            val = mECloudService.getCloudness(x + y * mWidth);
+            imageData[x + y * mWidth] = { val,val,val, 255 };
+        }
     }
 }
 

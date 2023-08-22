@@ -9,6 +9,7 @@
 #include "EnviroumentWaterService.h"
 #include "EnviroumentTemperatureService.h"
 #include "EnviroumentTerrainService.h"
+#include "EnviroumentCloudService.h"
 
 class Enviroument {
 public:
@@ -17,6 +18,7 @@ public:
     inline _NODISCARD EnviroumentWaterService& getWaterService() noexcept { return mEWaterService; }
     inline _NODISCARD EnviroumentTemperatureService& getTemperatureService() noexcept { return mETemperatureService; }
     inline _NODISCARD EnviroumentTerrainService& getTerrainService() noexcept { return mETerrainService; }
+    inline _NODISCARD EnviroumentCloudService& getCloudService() noexcept { return mECloudService; }
     void setTempratureForPlantsRange(int16_t tempPlantMin, int16_t tempPlantMax) noexcept;
     void setGrowRatio(float ratio) noexcept;
     void setBoosters(uint16_t sunBoostr, uint16_t rainBooster) noexcept;
@@ -44,6 +46,7 @@ private:
     EnviroumentTerrainService mETerrainService;
     EnviroumentWaterService mEWaterService;
     EnviroumentTemperatureService mETemperatureService;
+    EnviroumentCloudService mECloudService;
 
     float mGrowRatio; // how fast a plant would grow if all conditions are satisfied (sun or rain, low height, perfect temperature)
     int16_t mMinTempForPlantsLiving;

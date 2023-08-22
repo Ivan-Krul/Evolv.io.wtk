@@ -33,12 +33,15 @@ private:
 
     size_t mWidth;
     size_t mHeight;
-    std::vector<bool> mIsSea;
+    std::vector<size_t> mSeaCoord;
     std::vector<bool> mIsMountain;
     std::vector<uint8_t> mCloudness;
     std::vector<uint8_t> mRainForce;
+    std::vector<size_t> mSpendCoord;
 
     int8_t mWindDirX;
     int8_t mWindDirY;
+
+    const uint8_t cCloudIncome = 1;
 };
 

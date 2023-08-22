@@ -1,4 +1,5 @@
 #include "EnviroumentCloudService.h"
+#include "Utils.h"
 
 EnviroumentCloudService::EnviroumentCloudService() {
     mCheckList = 0;
@@ -16,7 +17,6 @@ void EnviroumentCloudService::setPlain(size_t width, size_t height) {
     mHeight = height;
     mCloudness.resize(width * height, 0);
     mRainForce.resize(mCloudness.size(), 0);
-    mIsSea.resize(mCloudness.size(), 0);
     mIsMountain.resize(mCloudness.size(), 255);
     mCheckList[0] = true;
 }
@@ -28,7 +28,8 @@ void EnviroumentCloudService::setCloudHeight(uint8_t cloudHeight) {
 
 void EnviroumentCloudService::setTopologyOfRegions(const EnviroumentTerrainService& terrainService, const EnviroumentWaterService& waterService) {
     for (size_t i = 0; i < mCloudness.size(); i++) {
-        mIsSea[i] = waterService.getLowestLevel() > terrainService.getHeight(i);
+        if (waterService.getLowestLevel() > terrainService.getHeight(i))
+            mSeaCoord.push_back(i);
         mIsMountain[i] = terrainService.getHeight(i) < mCloudHeight;
     }
 
@@ -57,13 +58,51 @@ bool EnviroumentCloudService::isReady() const noexcept {
 
 void EnviroumentCloudService::takeStep(float widness) {
     // first we're gaining some steam
+    for (auto& index : mSeaCoord) {
+        addExpectedOverflowAndUnderflow(mCloudness[index], cCloudIncome);
+    }
+
+    for (size_t i = 0; i < mWidth; i++) {
+        mCloudness[i] = rand();
+        mCloudness[i + mWidth * (mHeight - 1)] = rand();
+    }
+
+    for (size_t i = 0; i < mHeight; i++) {
+        mCloudness[i * mWidth] = rand();
+        mCloudness[mWidth - 1 + i * mWidth] = rand();
+    }
+
     // then we're blow them
+    static auto image = mCloudness;
+    image = mCloudness;
+    mSpendCoord.clear();
+
+    float curWind = mWindDirX * widness * mWindDirY;
+
+    int windDirX = mWindDirX > 0 ? ceil(mWindDirX) : floor(mWindDirX);
+    int windDirY = mWindDirY > 0 ? ceil(mWindDirY) : floor(mWindDirY);
+
+    uint8_t pocket;
+
+    float forceWind = curWind;
+
+    for (size_t i = 0; i < mCloudness.size(); i++) {
+        pocket = image[i];
+        forceWind = curWind * (1.f - (float)pocket / 512.f) * curWind;
+        
+        if (isInsideOfMap(i, windDirX, windDirY, mWidth, mHeight)) {
+            addExpectedOverflowAndUnderflow(mCloudness[i + windDirX + windDirY * mWidth], pocket * forceWind);
+        }
+        addExpectedOverflowAndUnderflow(mCloudness[i], -(pocket * forceWind));
+        if (image[i] > mTriggerRain)
+            mSpendCoord.push_back(i);
+    }
+
     // and then, we're spending them
+    for (auto& index : mSpendCoord) {
+        addExpectedOverflowAndUnderflow(mCloudness[index], mTriggerRain - mCloudness[index] * 0.5);
+    }
 
-    float curWindX = mWindDirX * widness;
-    float curWindY = mWindDirY * widness;
-
-    // TODO: make gaining the rest of EnviroumentCloudService::takeStep
 }
 
 size_t EnviroumentCloudService::getSize() const noexcept {
