@@ -18,7 +18,7 @@ void Enviroument::step(float wideness) {
 void Enviroument::generateImage() {
     Color* imageData = (Color*)mImage.data;
 
-    //if (!mCheckList.any()) {
+    //if (chechIsUnfinishedCheckList()) {
     //    handleUnfinishedCheckList();
     //    return;
     //}
