@@ -10,6 +10,8 @@ public:
 
     void loop();
 private:
+    const int mWindowX = 640;
+    const int mWindowY = 480;
     Enviroument mEnviroument;
     graphic_sys_lib::Renderer mRenderer;
     float mSpeed;

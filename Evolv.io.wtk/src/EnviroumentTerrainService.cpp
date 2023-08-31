@@ -12,11 +12,11 @@ void EnviroumentTerrainService::generate(size_t width, size_t height, size_t ite
     mWidth = width;
     mHeight = height;
 
-    auto prop = component_property_kit_lib::Properties();
+    auto prop = component_property_kit_lib::PropertyList();
     auto pgc = PlainGenComponent(prop, 0, typeid(PlainGenComponent).hash_code());
     pgc.init();
 
-    auto map = pgc.generatePerlinChunk<component_property_kit_lib::SmootherSmoothLinear>(0.5, 0.5, iters, mWidth, mHeight);
+    auto map = pgc.generatePerlinChunk<component_property_kit_lib::smoother::SmootherSmoothLinear>(0.5, 0.5, iters, mWidth, mHeight);
     mHeightMap.resize(map.size());
 
     for (size_t i = 0; i < map.size(); i++) {

@@ -5,9 +5,12 @@
 
 #include "EnviroumentTerrainService.h"
 #include "EnviroumentWaterService.h"
+#include "ComponentPropertyKit.h"
 
 class EnviroumentCloudService {
 public:
+    typedef int16_t CloudnessValue;
+
     EnviroumentCloudService();
     void setPlain(size_t width, size_t height);
     void setCloudHeight(uint8_t cloudHeight);
@@ -21,10 +24,12 @@ public:
     void takeStep(float widness);
 
     size_t getSize() const noexcept;
-    uint8_t getCloudness(size_t index) const noexcept;
-    uint8_t getRainForce(size_t index) const noexcept;
+    const std::vector<CloudnessValue>& getCloudness() const noexcept;
+    const std::vector<uint8_t>& getRainForce() const noexcept;
 
 private:
+    float calculateWindForce(const std::vector<CloudnessValue>& image, size_t index, float mult) const noexcept;
+
     std::bitset<6> mCheckList;
 
     uint8_t mCloudHeight; // in procent
@@ -35,12 +40,17 @@ private:
     size_t mHeight;
     std::vector<size_t> mSeaCoord;
     std::vector<bool> mIsMountain;
-    std::vector<uint8_t> mCloudness;
+    std::vector<CloudnessValue> mCloudness;
     std::vector<uint8_t> mRainForce;
     std::vector<size_t> mSpendCoord;
 
     int8_t mWindDirX;
     int8_t mWindDirY;
+
+    float mRandWindX;
+    float mRandWindY;
+
+    component_property_kit_lib::PropertyList propList;
 
     const uint8_t cCloudIncome = 1;
 };

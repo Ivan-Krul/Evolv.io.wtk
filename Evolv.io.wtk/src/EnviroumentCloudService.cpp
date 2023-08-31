@@ -10,6 +10,8 @@ EnviroumentCloudService::EnviroumentCloudService() {
 
     mWindDirX = 0;
     mWindDirY = 0;
+
+    propList.pushComponent<component_property_kit_lib::RandomGeneratorComponent>();
 }
 
 void EnviroumentCloudService::setPlain(size_t width, size_t height) {
@@ -30,7 +32,7 @@ void EnviroumentCloudService::setTopologyOfRegions(const EnviroumentTerrainServi
     for (size_t i = 0; i < mCloudness.size(); i++) {
         if (waterService.getLowestLevel() > terrainService.getHeight(i))
             mSeaCoord.push_back(i);
-        mIsMountain[i] = terrainService.getHeight(i) < mCloudHeight;
+        mIsMountain[i] = terrainService.getHeight(i) > mCloudHeight;
     }
 
     mCheckList[2] = true;
@@ -49,6 +51,8 @@ void EnviroumentCloudService::setTriggerChainReaction(uint8_t triggerForChainRea
 void EnviroumentCloudService::setWind(int8_t windX, int8_t windY) {
     mWindDirX = windX;
     mWindDirY = windY;
+    mRandWindX = 0;
+    mRandWindY = 0;
     mCheckList[5] = true;
 }
 
@@ -57,51 +61,64 @@ bool EnviroumentCloudService::isReady() const noexcept {
 }
 
 void EnviroumentCloudService::takeStep(float widness) {
-    // first we're gaining some steam
-    for (auto& index : mSeaCoord) {
-        addExpectedOverflowAndUnderflow(mCloudness[index], cCloudIncome);
-    }
-
-    for (size_t i = 0; i < mWidth; i++) {
-        mCloudness[i] = rand();
-        mCloudness[i + mWidth * (mHeight - 1)] = rand();
-    }
-
-    for (size_t i = 0; i < mHeight; i++) {
-        mCloudness[i * mWidth] = rand();
-        mCloudness[mWidth - 1 + i * mWidth] = rand();
-    }
-
-    // then we're blow them
+    static auto& rng = propList.getComponent<component_property_kit_lib::RandomGeneratorComponent>(0);
     static auto image = mCloudness;
     image = mCloudness;
     mSpendCoord.clear();
 
-    float curWind = mWindDirX * widness * mWindDirY;
+    // first we're gaining some steam
+    for (auto& index : mSeaCoord) {
+        mCloudness[index] = mCloudness[index] > cCloudIncome ? 255 : mCloudness[index] + cCloudIncome;
+    }
 
-    int windDirX = mWindDirX > 0 ? ceil(mWindDirX) : floor(mWindDirX);
-    int windDirY = mWindDirY > 0 ? ceil(mWindDirY) : floor(mWindDirY);
+    for (size_t i = 0; i < mWidth; i++) {
+        mCloudness[i] = rng.next<uint8_t>();
+        mCloudness[i + mWidth * (mHeight - 1)] = rng.next<uint8_t>();
+    }
 
-    uint8_t pocket;
+    for (size_t i = 0; i < mHeight; i++) {
+        mCloudness[i * mWidth] = rng.next<uint8_t>();
+        mCloudness[mWidth - 1 + i * mWidth] = rng.next<uint8_t>();
+    }
 
-    float forceWind = curWind;
+    // then we're blow them
+    mRandWindX += std::max(std::min(rng.next(-0.01f, 0.01f), 1.f),-1.f);
+    mRandWindY += std::max(std::min(rng.next(-0.01f, 0.01f), 1.f), -1.f);
+
+    float curWindX = mRandWindX + mWindDirX;
+    float curWindY = mRandWindY + mWindDirY;
+
+    float curWind = curWindX * widness * curWindY;
+
+    int windDirX = curWindX > 0 ? ceil(curWindX) : floor(curWindX);
+    int windDirY = curWindY > 0 ? ceil(curWindY) : floor(curWindY);
+
+    CloudnessValue pocket;
+
+    float forceWind = 0.f;
 
     for (size_t i = 0; i < mCloudness.size(); i++) {
-        pocket = image[i];
-        forceWind = curWind * (1.f - (float)pocket / 512.f) * curWind;
-        
-        if (isInsideOfMap(i, windDirX, windDirY, mWidth, mHeight)) {
-            addExpectedOverflowAndUnderflow(mCloudness[i + windDirX + windDirY * mWidth], pocket * forceWind);
+        forceWind = calculateWindForce(image, i, .5f) * curWind;
+    
+        if (isInsideOfMap(i,windDirX, windDirY, mWidth, mHeight)) {
+            mCloudness[i + windDirX + windDirY * mWidth] = std::min<CloudnessValue>(image[i] + forceWind,255);
         }
-        addExpectedOverflowAndUnderflow(mCloudness[i], -(pocket * forceWind));
-        if (image[i] > mTriggerRain)
+        if(mCloudness[i] != 0)
+            mCloudness[i] = std::max<CloudnessValue>(image[i] - forceWind, 0);
+    
+        if (((image[i] > mTriggerRain) || mIsMountain[i]) && mCloudness[i] != 0)
             mSpendCoord.push_back(i);
     }
-
+    
     // and then, we're spending them
     for (auto& index : mSpendCoord) {
-        addExpectedOverflowAndUnderflow(mCloudness[index], mTriggerRain - mCloudness[index] * 0.5);
+        if(mCloudness[index] != 0)
+            mCloudness[index] -= 5;
     }
+
+    //for (size_t i = 0; i < mCloudness.size(); i++) {
+    //    mCloudness[i] = std::max<int16_t>(std::min<int16_t>(mCloudness[i], 255), 0);
+    //}
 
 }
 
@@ -109,14 +126,14 @@ size_t EnviroumentCloudService::getSize() const noexcept {
     return mCloudness.size();
 }
 
-uint8_t EnviroumentCloudService::getCloudness(size_t index) const noexcept {
-    if(index >= mCloudness.size())
-        return 0;
-    return mCloudness[index];
+const std::vector<EnviroumentCloudService::CloudnessValue>& EnviroumentCloudService::getCloudness() const noexcept {
+    return mCloudness;
 }
 
-uint8_t EnviroumentCloudService::getRainForce(size_t index) const noexcept {
-    if (index >= mRainForce.size())
-        return 0;
-    return mRainForce[index];
+const std::vector<uint8_t>& EnviroumentCloudService::getRainForce() const noexcept {
+    return mRainForce;
+}
+
+float EnviroumentCloudService::calculateWindForce(const std::vector<CloudnessValue>& image, size_t index, float mult) const noexcept {
+    return 256.f - image[index]*mult;
 }

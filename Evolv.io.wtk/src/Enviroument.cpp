@@ -29,12 +29,25 @@ void Enviroument::generateImage() {
 
     float steep = 0;
 
-    uint8_t val;
+    int16_t val;
+    uint8_t c;
+    auto& cloud = mECloudService.getCloudness();
 
     for (size_t y = 0; y < mHeight; y++) {
         for (size_t x = 0; x < mWidth; x++) {
-            val = mECloudService.getCloudness(x + y * mWidth);
-            imageData[x + y * mWidth] = { val,val,val, 255 };
+            c = cloud[x + y * mWidth];
+            val = cloud[x + y * mWidth];
+            if (val < 0) {
+                imageData[x + y * mWidth] = { 0,0,255, 255 };
+                //printf("und\n");
+            }
+            else if (val > 256) {
+                imageData[x + y * mWidth] = { 255,0,0, 255 };
+                //printf("ove\n");
+            }
+            else
+                imageData[x + y * mWidth] = { c,c,c, 255 };
+            //imageData[x + y * mWidth] = { c,c,c, 255 };
         }
     }
 }
