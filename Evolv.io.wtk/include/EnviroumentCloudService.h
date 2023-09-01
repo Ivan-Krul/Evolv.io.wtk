@@ -17,18 +17,21 @@ public:
     void setTopologyOfRegions(const EnviroumentTerrainService& terrainService, const EnviroumentWaterService& waterService);
     void setTriggerRain(uint8_t triggerForRain);
     void setTriggerChainReaction(uint8_t triggerForChainReaction);
-    void setWind(int8_t windX, int8_t windY);
+    void setWind(float windX, float windY);
     
     bool isReady() const noexcept;
 
     void takeStep(float widness);
 
     size_t getSize() const noexcept;
-    const std::vector<CloudnessValue>& getCloudness() const noexcept;
-    const std::vector<uint8_t>& getRainForce() const noexcept;
+    CloudnessValue* getCloudness() const noexcept;
+    CloudnessValue* getRainForce() const noexcept;
 
+    ~EnviroumentCloudService() {
+        delete[] mIsSea, mIsMountain, mCloudness, mRainForce, mWindDir;
+    }
 private:
-    float calculateWindForce(const std::vector<CloudnessValue>& image, size_t index, float mult) const noexcept;
+    float calculateWindForce(size_t index, float mult) const noexcept;
 
     std::bitset<6> mCheckList;
 
@@ -38,19 +41,16 @@ private:
 
     size_t mWidth;
     size_t mHeight;
-    std::vector<size_t> mSeaCoord;
-    std::vector<bool> mIsMountain;
-    std::vector<CloudnessValue> mCloudness;
-    std::vector<uint8_t> mRainForce;
-    std::vector<size_t> mSpendCoord;
+    size_t mPlainSize;
 
-    int8_t mWindDirX;
-    int8_t mWindDirY;
+    bool* mIsSea;
+    bool* mIsMountain;
+    CloudnessValue* mCloudness;
+    CloudnessValue* mCloudnessBuffer;
+    CloudnessValue* mRainForce;
+    Vector2* mWindDir;
 
-    float mRandWindX;
-    float mRandWindY;
-
-    component_property_kit_lib::PropertyList propList;
+    component_property_kit_lib::PropertyList mPropList;
 
     const uint8_t cCloudIncome = 1;
 };

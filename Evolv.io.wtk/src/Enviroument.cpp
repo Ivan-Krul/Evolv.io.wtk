@@ -31,7 +31,7 @@ void Enviroument::generateImage() {
 
     int16_t val;
     uint8_t c;
-    auto& cloud = mECloudService.getCloudness();
+    auto cloud = mECloudService.getCloudness();
 
     for (size_t y = 0; y < mHeight; y++) {
         for (size_t x = 0; x < mWidth; x++) {

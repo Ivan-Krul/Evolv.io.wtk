@@ -166,6 +166,7 @@
     <ClInclude Include="include\EnviroumentWaterService.h" />
     <ClInclude Include="include\Enviroument.h" />
     <ClInclude Include="include\Simulation.h" />
+    <ClInclude Include="include\TimeStop.h" />
     <ClInclude Include="include\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
