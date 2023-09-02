@@ -28,10 +28,11 @@ public:
     CloudnessValue* getRainForce() const noexcept;
 
     ~EnviroumentCloudService() {
-        delete[] mIsSea, mIsMountain, mCloudness, mRainForce, mWindDir;
+        delete[] mIsSea, mIsMountain, mCloudness, mRainForce, mWindDir, mBorderGeneratorCoords;
     }
 private:
     float calculateWindForce(size_t index, float mult) const noexcept;
+    void generateBorders() noexcept;
 
     std::bitset<6> mCheckList;
 
@@ -42,6 +43,7 @@ private:
     size_t mWidth;
     size_t mHeight;
     size_t mPlainSize;
+    size_t mBorderSize;
 
     bool* mIsSea;
     bool* mIsMountain;
@@ -49,9 +51,10 @@ private:
     CloudnessValue* mCloudnessBuffer;
     CloudnessValue* mRainForce;
     Vector2* mWindDir;
+    size_t* mBorderGeneratorCoords;
 
     component_property_kit_lib::PropertyList mPropList;
 
-    const uint8_t cCloudIncome = 1;
+    const uint8_t cCloudIncome = 5;
 };
 
